@@ -21,7 +21,9 @@ const MODEL_MAPPING = {
   'claude-3-opus': 'openai/gpt-oss-120b',
   'claude-3-sonnet': 'openai/gpt-oss-20b',
   'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking',
-  'gpt-4-32k': 'deepseek-ai/deepseek-r1-0528'
+  'gpt-4-32k': 'deepseek-ai/deepseek-r1-distill-qwen-14b',
+  'gpt-4-terminus': 'deepseek-ai/deepseek-v3.1-terminus',
+  'gpt-4a': 'deepseek-ai/deepseek-v3.2'
 };
 
 app.get('/health', (req, res) => {
