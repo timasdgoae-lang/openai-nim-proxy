@@ -42,13 +42,16 @@ app.post('/v1/chat/completions', async (req, res) => {
     const { model, messages, temperature, max_tokens, stream } = req.body;
     const nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
 
-    const nimRequest = {
-      model: nimModel,
-      messages: messages,
-      temperature: temperature || 0.6,
-      max_tokens: max_tokens || 2048,
-      stream: stream || false
-    };
+  // Keep only the last 20 messages to avoid payload too large errors
+ const trimmedMessages = messages.slice(-30);
+
+ const nimRequest = {
+   model: nimModel,
+   messages: trimmedMessages,
+   temperature: temperature || 0.3,
+   max_tokens: max_tokens || 3076,
+   stream: false
+ };
 
     if (stream) {
       res.setHeader('Content-Type', 'text/event-stream');
