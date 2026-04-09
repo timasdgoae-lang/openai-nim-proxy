@@ -43,7 +43,7 @@ app.post('/v1/chat/completions', async (req, res) => {
     const nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
 
   // Keep only the last 20 messages to avoid payload too large errors
- const trimmedMessages = messages.slice(-30);
+ const trimmedMessages = messages.slice(-20);
 
  const nimRequest = {
    model: nimModel,
