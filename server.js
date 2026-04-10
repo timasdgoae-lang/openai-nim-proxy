@@ -37,24 +37,37 @@ app.get('/v1/models', (req, res) => {
   res.json({ object: 'list', data: models });
 });
 
+function cleanContent(content) {
+  // Remove <think> blocks
+  content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  // Cut everything before </start> marker
+  const markerIndex = content.indexOf('</start>');
+  if (markerIndex !== -1) {
+    content = content.slice(markerIndex + '</start>'.length).trim();
+  }
+  return content;
+}
+
 app.post('/v1/chat/completions', async (req, res) => {
   try {
     const { model, messages, temperature, max_tokens, stream } = req.body;
     const nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
 
-  // Keep only the last 20 messages to avoid payload too large errors
-const systemMessages = messages.filter(m => m.role === 'system');
-const otherMessages = messages.filter(m => m.role !== 'system');
-const reinforcedMessages = [...systemMessages, ...otherMessages, ...systemMessages.map(m => ({ ...m, role: 'system' }))];
+    const systemMessages = messages.filter(m => m.role === 'system');
+    const otherMessages = messages.filter(m => m.role !== 'system');
+    const reinforcedMessages = [
+      ...systemMessages,
+      ...otherMessages,
+      ...systemMessages.map(m => ({ ...m, role: 'system' }))
+    ];
 
-const nimRequest = {
-  model: nimModel,
-  messages: reinforcedMessages,
-   messages: messages,
-   temperature: temperature || 0.5,
-   max_tokens: max_tokens || 8192,
-   stream: false
- };
+    const nimRequest = {
+      model: nimModel,
+      messages: reinforcedMessages,
+      temperature: temperature || 0.5,
+      max_tokens: max_tokens || 8192,
+      stream: stream || false
+    };
 
     if (stream) {
       res.setHeader('Content-Type', 'text/event-stream');
@@ -118,11 +131,15 @@ const nimRequest = {
         object: 'chat.completion',
         created: Math.floor(Date.now() / 1000),
         model: model,
-        choices: response.data.choices.map(choice => ({
-          index: choice.index,
-          message: { role: choice.message.role, content: choice.message.content || '' },
-          finish_reason: choice.finish_reason
-        })),
+        choices: response.data.choices.map(choice => {
+          let content = choice.message.content || '';
+          content = cleanContent(content);
+          return {
+            index: choice.index,
+            message: { role: choice.message.role, content },
+            finish_reason: choice.finish_reason
+          };
+        }),
         usage: response.data.usage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 }
       });
     }
