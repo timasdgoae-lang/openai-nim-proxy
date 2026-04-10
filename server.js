@@ -10,7 +10,7 @@ app.use(express.json());
 const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com/v1';
 const NIM_API_KEY = process.env.NIM_API_KEY;
 
-const SHOW_REASONING = true;
+const SHOW_REASONING = false;
 const ENABLE_THINKING_MODE = false;
 
 const MODEL_MAPPING = {
@@ -43,13 +43,16 @@ app.post('/v1/chat/completions', async (req, res) => {
     const nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
 
   // Keep only the last 20 messages to avoid payload too large errors
- const trimmedMessages = messages.slice(-20);
+const systemMessages = messages.filter(m => m.role === 'system');
+const otherMessages = messages.filter(m => m.role !== 'system');
+const reinforcedMessages = [...systemMessages, ...otherMessages, ...systemMessages.map(m => ({ ...m, role: 'system' }))];
 
- const nimRequest = {
-   model: nimModel,
-   messages: trimmedMessages,
-   temperature: temperature || 0.3,
-   max_tokens: max_tokens || 3076,
+const nimRequest = {
+  model: nimModel,
+  messages: reinforcedMessages,
+   messages: messages,
+   temperature: temperature || 0.5,
+   max_tokens: max_tokens || 8192,
    stream: false
  };
 
