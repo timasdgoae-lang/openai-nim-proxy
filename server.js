@@ -24,6 +24,9 @@ const MODEL_MAPPING = {
   'gpt-4-32k': 'deepseek-ai/deepseek-r1-distill-qwen-14b',
   'gpt-4-terminus': 'deepseek-ai/deepseek-v3.1-terminus',
   'gpt-4a': 'deepseek-ai/deepseek-v3.2'
+  'nemotron-super': 'nvidia/nemotron-3-super-120b-a12b'
+  'gemma-4': 'google/gemma-4-31b-it'
+  'glm-4-roleplay': 'z-ai/glm4_7'
 };
 
 app.get('/health', (req, res) => {
