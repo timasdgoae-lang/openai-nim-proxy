@@ -66,7 +66,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       messages: reinforcedMessages,
       temperature: temperature || 0.5,
       max_tokens: max_tokens || 8192,
-      stream: stream || false
+      stream: stream || true
     };
 
     if (stream) {
