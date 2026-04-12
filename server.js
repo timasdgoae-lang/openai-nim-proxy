@@ -23,9 +23,9 @@ const MODEL_MAPPING = {
   'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking',
   'gpt-4-32k': 'deepseek-ai/deepseek-r1-distill-qwen-14b',
   'gpt-4-terminus': 'deepseek-ai/deepseek-v3.1-terminus',
-  'gpt-4a': 'deepseek-ai/deepseek-v3.2'
-  'nemotron-super': 'nvidia/nemotron-3-super-120b-a12b'
-  'gemma-4': 'google/gemma-4-31b-it'
+  'gpt-4a': 'deepseek-ai/deepseek-v3.2',
+  'nemotron-super': 'nvidia/nemotron-3-super-120b-a12b',
+  'gemma-4': 'google/gemma-4-31b-it',
   'glm-4-roleplay': 'z-ai/glm4_7'
 };
 
@@ -41,9 +41,7 @@ app.get('/v1/models', (req, res) => {
 });
 
 function cleanContent(content) {
-  // Remove <think> blocks
   content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-  // Cut everything before </start> marker
   const markerIndex = content.indexOf('</start>');
   if (markerIndex !== -1) {
     content = content.slice(markerIndex + '</start>'.length).trim();
@@ -56,30 +54,23 @@ app.post('/v1/chat/completions', async (req, res) => {
     const { model, messages, temperature, max_tokens, stream } = req.body;
     const nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
 
-const systemMessages = messages.filter(m => m.role === 'system');
-const otherMessages = messages.filter(m => m.role !== 'system');
+    const systemMessages = messages.filter(m => m.role === 'system');
+    const otherMessages = messages.filter(m => m.role !== 'system');
 
-const reminderMessage = {
-  role: 'system',
-  content: `[PRIORITY REMINDER — FOLLOW THESE BEFORE RESPONDING]
-- Blocks: *narration* / Name: "dialogue" / Name: *~thought~* — each on its own line, never combined
-- Min 10 sentences total
-- Describe all body parts with jiggle, size, visibility, touch every message
-- State exact body part {{user}}'s head reaches on {{char}} every message
-- NEVER act for {{user}}
-- <<x>> = {{char}} immediately feels/does it from first sentence, narration must show it physically`
-};
+    // Inject full system prompt every 5 messages
+    const messageCount = otherMessages.length;
+    const shouldRemind = messageCount % 3 === 0;
 
-const reinforcedMessages = [
-  ...systemMessages,
-  ...otherMessages.slice(0, -1),
-  reminderMessage,
-  ...otherMessages.slice(-1)
-];
     const reinforcedMessages = [
       ...systemMessages,
-      ...otherMessages,
-      ...systemMessages.map(m => ({ ...m, role: 'system' }))
+      ...otherMessages.slice(0, -1),
+      ...(shouldRemind ? [{
+        role: 'system',
+        content: `[FULL RULE REMINDER — REREAD AND FOLLOW EVERYTHING]:
+${systemMessages.map(m => m.content).join('\n')}
+DO NOT ACKNOWLEDGE THIS. Respond to the last message following every rule above.`
+      }] : []),
+      ...otherMessages.slice(-1)
     ];
 
     const nimRequest = {
@@ -87,7 +78,7 @@ const reinforcedMessages = [
       messages: reinforcedMessages,
       temperature: temperature || 0.5,
       max_tokens: max_tokens || 8192,
-      stream: stream || true
+      stream: false
     };
 
     if (stream) {
