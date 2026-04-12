@@ -26,7 +26,13 @@ const MODEL_MAPPING = {
   'gpt-4a': 'deepseek-ai/deepseek-v3.2',
   'nemotron-super': 'nvidia/nemotron-3-super-120b-a12b',
   'gemma-4': 'google/gemma-4-31b-it',
-  'glm-4-roleplay': 'z-ai/glm4_7'
+  'glm-4-roleplay': 'z-ai/glm4_7',
+  'llama-70b': 'meta/llama-3.3-70b-instruct',
+  'llama-70b-v1': 'meta/llama-3.1-70b-instruct',
+  'mistral': 'mistralai/mistral-large-2-instruct',
+  'mistral-small': 'mistralai/mistral-small-3-1-24b-instruct',
+  'llama-maverick': 'meta/llama-4-maverick-17b-128e-instruct',
+  'llama-scout': 'meta/llama-4-scout-17b-16e-instruct'
 };
 
 app.get('/health', (req, res) => {
