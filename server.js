@@ -56,8 +56,26 @@ app.post('/v1/chat/completions', async (req, res) => {
     const { model, messages, temperature, max_tokens, stream } = req.body;
     const nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
 
-    const systemMessages = messages.filter(m => m.role === 'system');
-    const otherMessages = messages.filter(m => m.role !== 'system');
+const systemMessages = messages.filter(m => m.role === 'system');
+const otherMessages = messages.filter(m => m.role !== 'system');
+
+const reminderMessage = {
+  role: 'system',
+  content: `[PRIORITY REMINDER — FOLLOW THESE BEFORE RESPONDING]
+- Blocks: *narration* / Name: "dialogue" / Name: *~thought~* — each on its own line, never combined
+- Min 10 sentences total
+- Describe all body parts with jiggle, size, visibility, touch every message
+- State exact body part {{user}}'s head reaches on {{char}} every message
+- NEVER act for {{user}}
+- <<x>> = {{char}} immediately feels/does it from first sentence, narration must show it physically`
+};
+
+const reinforcedMessages = [
+  ...systemMessages,
+  ...otherMessages.slice(0, -1),
+  reminderMessage,
+  ...otherMessages.slice(-1)
+];
     const reinforcedMessages = [
       ...systemMessages,
       ...otherMessages,
