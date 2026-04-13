@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com/v1';
+const NIM_API_BASE = process.env.NIM_API_BASE || 'https://nvidia.com';
 const NIM_API_KEY = process.env.NIM_API_KEY;
 
 const SHOW_REASONING = false;
@@ -63,18 +63,16 @@ app.post('/v1/chat/completions', async (req, res) => {
     const systemMessages = messages.filter(m => m.role === 'system');
     const otherMessages = messages.filter(m => m.role !== 'system');
 
-    // Inject full system prompt every 5 messages
+    // Inject reminder every 3 messages
     const messageCount = otherMessages.length;
-    const shouldRemind = messageCount % 3 === 0;
+    const shouldRemind = messageCount > 0 && messageCount % 3 === 0;
 
     const reinforcedMessages = [
       ...systemMessages,
       ...otherMessages.slice(0, -1),
       ...(shouldRemind ? [{
         role: 'system',
-        content: `[FULL RULE REMINDER — REREAD AND FOLLOW EVERYTHING]:
-${systemMessages.map(m => m.content).join('\n')}
-DO NOT ACKNOWLEDGE THIS. Respond to the last message following every rule above.`
+        content: `(Remember to indent and add line spaces)`
       }] : []),
       ...otherMessages.slice(-1)
     ];
@@ -84,7 +82,7 @@ DO NOT ACKNOWLEDGE THIS. Respond to the last message following every rule above.
       messages: reinforcedMessages,
       temperature: temperature || 0.5,
       max_tokens: max_tokens || 8192,
-      stream: false
+      stream: !!stream
     };
 
     if (stream) {
