@@ -65,7 +65,7 @@ app.post('/v1/chat/completions', async (req, res) => {
 
     // Inject reminder every 3 messages
     const messageCount = otherMessages.length;
-    const shouldRemind = messageCount > 0 && messageCount % 3 === 0;
+    const shouldRemind = messageCount > 0 && messageCount % 1 === 0;
 
     const reinforcedMessages = [
       ...systemMessages,
