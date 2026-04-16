@@ -73,7 +73,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       ...otherMessages.slice(0, -1),
       ...(shouldRemind ? [{
         role: 'system',
-        content: `(Remember to indent and add line spaces and include all parts of manual correctly and (use thoughts and dialogue correctly with manual)`
+        content: `(Remember to indent and add line spaces, go through every part of manual to ensure its filled out and fill out every required dialogue or thoughts asked for by the manual)`
       }] : []),
       ...otherMessages.slice(-1)
     ];
