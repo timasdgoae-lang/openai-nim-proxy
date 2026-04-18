@@ -73,7 +73,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       ...otherMessages.slice(0, -1),
       ...(shouldRemind ? [{
         role: 'system',
-        content: `(Dont forget to include all of the manual. All required thoughts and dialogue will be included.)`
+        content: `(Dont forget to include all of the manual no matter scene context. All required thoughts and dialogue will be included.)`
       }] : []),
       ...otherMessages.slice(-1)
     ];
