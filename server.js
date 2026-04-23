@@ -33,7 +33,16 @@ const MODEL_MAPPING = {
   'mistral': 'mistralai/mistral-large-2-instruct',
   'mistral-small': 'mistralai/mistral-small-3-1-24b-instruct',
   'llama-maverick': 'meta/llama-4-maverick-17b-128e-instruct',
-  'llama-scout': 'meta/llama-4-scout-17b-16e-instruct'
+  'llama-scout': 'meta/llama-4-scout-17b-16e-instruct',
+
+  // New confirmed models - great for instruction following + roleplay
+  'minimax': 'minimax-ai/minimax-m2.7',
+  'glm-5': 'z-ai/glm-5-1',
+  'glm-4': 'z-ai/glm-4-7',
+  'mistral-small-4': 'mistralai/mistral-small-4-119b-2603',
+  'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
+  'nemotron-ultra': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
+  'qwen3-5': 'qwen/qwen3.5-122b-a22b-instruct'
 };
 
 app.get('/health', (req, res) => {
