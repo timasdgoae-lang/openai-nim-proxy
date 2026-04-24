@@ -75,7 +75,7 @@ app.post('/v1/chat/completions', async (req, res) => {
     const lastMessage = otherMessages[otherMessages.length - 1];
     const modifiedLastMessage = {
       ...lastMessage,
-      content: lastMessage.content + '\n\n(Follow the manual, don\'t go on forever)'
+      content: lastMessage.content + '\n\n(Follow the manual, include spaces and emotions)'
     };
 
     const reinforcedMessages = [
