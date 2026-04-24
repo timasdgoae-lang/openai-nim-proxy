@@ -79,4 +79,4 @@ app.post('/v1/chat/completions', async (req, res) => {
       ...otherMessages.slice(0, -1),
       {
         role: 'system',
-        content: `(Don't forget to include all of the manual no matter the scene context. All required though
+        content: `(Start off this message with "RESPONSE:")'
