@@ -39,6 +39,7 @@ const MODEL_MAPPING = {
   'glm-4': 'z-ai/glm-4-7',
   'glm-5.1': 'z-ai/glm-5.1',
   'kimi2': 'moonshotai/kimi-k2-instruct',
+  'kimi2-think': 'moonshotai/kimi-k2-thinking',
   'mistral-small-4': 'mistralai/mistral-small-4-119b-2603',
   'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
   'nemotron-ultra': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
