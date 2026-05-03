@@ -45,7 +45,8 @@ const MODEL_MAPPING = {
   'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
   'nemotron-ultra': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
   'qwen3-5': 'qwen/qwen3.5-122b-a22b-instruct',
-  'mistral-3': 'mistralai/mistral-large-3-675b-instruct-2512'
+  'mistral-3': 'mistralai/mistral-large-3-675b-instruct-2512',
+  'mistralai': 'mistralai/mistral-medium-3-instruct'
 };
 
 app.get('/health', (req, res) => {
