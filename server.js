@@ -37,6 +37,7 @@ const MODEL_MAPPING = {
   'minimax': 'minimax-ai/minimax-m2.7',
   'glm-5': 'z-ai/glm-5-1',
   'glm-4': 'z-ai/glm-4-7',
+  'glm-5.1': 'z-ai/glm-5.1',
   'mistral-small-4': 'mistralai/mistral-small-4-119b-2603',
   'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
   'nemotron-ultra': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
