@@ -22,7 +22,7 @@ const MODEL_MAPPING = {
   'claude-3-sonnet': 'openai/gpt-oss-20b',
   'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking',
   'gpt-4-32k': 'deepseek-ai/deepseek-r1',
-  'gpt-4-terminus': 'deepseek-ai/deepseek-v3.1-terminus',
+  'gpt-4-terminus': 'deepseek-ai/deepseek-v4-flash',
   'gpt-4a': 'deepseek-ai/deepseek-v3.2',
   'nemotron-super': 'nvidia/nemotron-3-super-120b-a12b',
   'nemotron-mini': 'nvidia/nemotron-mini-4b-instruct',
