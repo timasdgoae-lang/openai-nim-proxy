@@ -32,6 +32,7 @@ const MODEL_MAPPING = {
   'llama-70b-v1': 'meta/llama-3.1-70b-instruct',
   'mistral': 'mistralai/mistral-large-2-instruct',
   'mistral-small': 'mistralai/mistral-small-3-1-24b-instruct',
+  'mistral-two': 'mistralai/devstral-2-123b-instruct-2512',
   'llama-maverick': 'meta/llama-4-maverick-17b-128e-instruct',
   'llama-scout': 'meta/llama-4-scout-17b-16e-instruct',
   'minimax': 'minimax-ai/minimax-m2.7',
