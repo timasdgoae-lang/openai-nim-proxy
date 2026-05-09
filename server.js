@@ -43,6 +43,7 @@ const MODEL_MAPPING = {
   'kimi2-think': 'moonshotai/kimi-k2-thinking',
   'kimi2a': 'moonshotai/kimi-k2.6',
   'mistral-small-4': 'mistralai/mistral-small-4-119b-2603',
+  'solara': 'upstage/solar-10.7b-instruct',
   'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
   'qwen-ultra': 'qwen/qwen3-next-80b-a3b-instruct',
   'nemotron-ultra': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
