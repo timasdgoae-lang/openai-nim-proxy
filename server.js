@@ -118,11 +118,6 @@ app.post('/v1/chat/completions', async (req, res) => {
     const nimRequest = {
       model: nimModel,
       messages: reinforcedMessages,
-      temperature: temperature || 0.75,
-      max_tokens: max_tokens || 2000,
-      top_p: 0.9,
-      frequency_penalty: 0.3,
-      presence_penalty: 0.2,
       stream: false
     };
 
