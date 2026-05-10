@@ -88,27 +88,20 @@ app.post('/v1/chat/completions', async (req, res) => {
     // Reinforce system prompt with priority markers
     const reinforcedSystem = systemMessages.map(m => ({
       ...m,
-      content: `CRITICAL INSTRUCTIONS — FOLLOW EVERY RULE EVERY RESPONSE WITHOUT EXCEPTION:\n\n${m.content}\n\nEVERY RESPONSE MUST CONTAIN: narration in asterisks, emotion before dialogue, thought block, body sound reaction block, hyper awareness block, height gap in narration. NEVER SKIP ANY RULE.`
+      content: `CRITICAL INSTRUCTIONS — FOLLOW THE CUSTOM PROMPT EVERY RESPONSE WITHOUT EXCEPTION`
     }));
-
-    // Mid-conversation rule reminder injected every response
-    const reminderMessage = {
-      role: 'system',
-      content: 'ACTIVE REMINDER: This response must include — [1] body sound reaction in thought or dialogue [2] hyper awareness block [3] height gap with both heights stated [4] explicit emotion before every dialogue [5] all narration wrapped in asterisks [6] minimum 15 sentences. Write naturally but include all of these without labeling them.'
-    };
 
     // Modify last user message with rule reminder
     const lastMessage = otherMessages[otherMessages.length - 1];
     const modifiedLastMessage = {
       ...lastMessage,
-      content: lastMessage.content + '\n\n[Follow every manual rule this response. Include body sound reaction, hyper awareness, height gap, emotions before dialogue, thought blocks, asterisk narration. Do not label or announce these — weave them naturally.]'
+      content: lastMessage.content + '\n\n[Follow the custom prompt in every response]'
     };
 
     // Build final message array with mid-conversation reminder
     const messageCount = otherMessages.length;
     let reinforcedMessages = [
       ...reinforcedSystem,
-      ...(messageCount > 1 ? [reminderMessage] : []),
       ...otherMessages.slice(0, -1),
       modifiedLastMessage,
       { role: 'assistant', content: '*' } // prefill to force asterisk narration start
