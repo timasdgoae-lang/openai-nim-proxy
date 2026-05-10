@@ -44,11 +44,14 @@ const MODEL_MAPPING = {
   'kimi2a': 'moonshotai/kimi-k2.6',
   'mistral-small-4': 'mistralai/mistral-small-4-119b-2603',
   'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
-  'qwen-ultra': 'qwen/qwen3-next-80b-a3b-instruct
+  'qwen-ultra': 'qwen/qwen3-next-80b-a3b-instruct',
   'nemotron-ultra': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
   'qwen3-5': 'qwen/qwen3.5-122b-a22b-instruct',
   'mistral-3': 'mistralai/mistral-large-3-675b-instruct-2512',
-  'mistralai': 'mistralai/mistral-medium-3-instruct'
+  'mistralai': 'mistralai/mistral-medium-3-instruct',
+  'roleplay': 'moonshotai/kimi-k2-instruct-0905',
+  'roleplay-fast': 'meta/llama-3.3-70b-instruct',
+  'roleplay-deep': 'nvidia/llama-3.1-nemotron-ultra-253b-v1'
 };
 
 app.get('/health', (req, res) => {
@@ -57,7 +60,10 @@ app.get('/health', (req, res) => {
 
 app.get('/v1/models', (req, res) => {
   const models = Object.keys(MODEL_MAPPING).map(model => ({
-    id: model, object: 'model', created: Date.now(), owned_by: 'nvidia-nim-proxy'
+    id: model,
+    object: 'model',
+    created: Date.now(),
+    owned_by: 'nvidia-nim-proxy'
   }));
   res.json({ object: 'list', data: models });
 });
@@ -74,29 +80,43 @@ function cleanContent(content) {
 app.post('/v1/chat/completions', async (req, res) => {
   try {
     const { model, messages, temperature, max_tokens, stream } = req.body;
-    const nimModel = MODEL_MAPPING[model] || 'meta/llama-3.1-8b-instruct';
+    const nimModel = MODEL_MAPPING[model] || 'moonshotai/kimi-k2-instruct-0905';
 
     const systemMessages = messages.filter(m => m.role === 'system');
     const otherMessages = messages.filter(m => m.role !== 'system');
 
-    // Add reminder to last user message every message
+    // Reinforce system prompt with priority markers
+    const reinforcedSystem = systemMessages.map(m => ({
+      ...m,
+      content: `CRITICAL INSTRUCTIONS — FOLLOW EVERY RULE EVERY RESPONSE WITHOUT EXCEPTION:\n\n${m.content}\n\nEVERY RESPONSE MUST CONTAIN: narration in asterisks, emotion before dialogue, thought block, body sound reaction block, hyper awareness block, height gap in narration. NEVER SKIP ANY RULE.`
+    }));
+
+    // Mid-conversation rule reminder injected every response
+    const reminderMessage = {
+      role: 'system',
+      content: 'ACTIVE REMINDER: This response must include — [1] body sound reaction in thought or dialogue [2] hyper awareness block [3] height gap with both heights stated [4] explicit emotion before every dialogue [5] all narration wrapped in asterisks [6] minimum 15 sentences. Write naturally but include all of these without labeling them.'
+    };
+
+    // Modify last user message with rule reminder
     const lastMessage = otherMessages[otherMessages.length - 1];
     const modifiedLastMessage = {
       ...lastMessage,
-      content: lastMessage.content + '\n\n(Follow the manual, Include spaces and emotions)'
+      content: lastMessage.content + '\n\n[Follow every manual rule this response. Include body sound reaction, hyper awareness, height gap, emotions before dialogue, thought blocks, asterisk narration. Do not label or announce these — weave them naturally.]'
     };
 
-    const reinforcedMessages = [
-      ...systemMessages,
+    // Build final message array with mid-conversation reminder
+    const messageCount = otherMessages.length;
+    let reinforcedMessages = [
+      ...reinforcedSystem,
+      ...(messageCount > 1 ? [reminderMessage] : []),
       ...otherMessages.slice(0, -1),
-      modifiedLastMessage
+      modifiedLastMessage,
+      { role: 'assistant', content: '*' } // prefill to force asterisk narration start
     ];
 
     const nimRequest = {
       model: nimModel,
       messages: reinforcedMessages,
-      temperature: temperature || 0.5,
-      max_tokens: max_tokens || 8192,
       stream: false
     };
 
@@ -115,6 +135,8 @@ app.post('/v1/chat/completions', async (req, res) => {
       });
 
       let buffer = '';
+      let isFirst = true;
+
       response.data.on('data', (chunk) => {
         buffer += chunk.toString();
         const lines = buffer.split('\n');
@@ -131,6 +153,15 @@ app.post('/v1/chat/completions', async (req, res) => {
               if (data.choices?.[0]?.delta) {
                 const reasoning = data.choices[0].delta.reasoning_content;
                 const content = data.choices[0].delta.content;
+
+                // Skip the prefill asterisk in streaming output
+                if (isFirst && content === '*') {
+                  isFirst = false;
+                  data.choices[0].delta.content = '*';
+                } else {
+                  isFirst = false;
+                }
+
                 if (SHOW_REASONING && reasoning) {
                   data.choices[0].delta.content = reasoning;
                 } else {
@@ -171,19 +202,29 @@ app.post('/v1/chat/completions', async (req, res) => {
             finish_reason: choice.finish_reason
           };
         }),
-        usage: response.data.usage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 }
+        usage: response.data.usage || {
+          prompt_tokens: 0,
+          completion_tokens: 0,
+          total_tokens: 0
+        }
       });
     }
 
   } catch (error) {
+    console.error('Proxy error:', error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
-      error: { message: error.message || 'Internal server error', type: 'invalid_request_error' }
+      error: {
+        message: error.response?.data?.detail?.error?.message || error.message || 'Internal server error',
+        type: 'invalid_request_error'
+      }
     });
   }
 });
 
 app.all('*', (req, res) => {
-  res.status(404).json({ error: { message: `Endpoint ${req.path} not found` } });
+  res.status(404).json({
+    error: { message: `Endpoint ${req.path} not found` }
+  });
 });
 
 module.exports = app;
