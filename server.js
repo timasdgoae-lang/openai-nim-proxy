@@ -49,6 +49,7 @@ const MODEL_MAPPING = {
   'qwen3-5': 'qwen/qwen3.5-122b-a22b-instruct',
   'mistral-3': 'mistralai/mistral-large-3-675b-instruct-2512',
   'mistralai': 'mistralai/mistral-medium-3-instruct',
+  'mistralai-alt': 'mistralai/mistral-nemotron',
   'roleplay': 'moonshotai/kimi-k2-instruct-0905',
   'roleplay-fast': 'meta/llama-3.3-70b-instruct',
   'roleplay-deep': 'nvidia/llama-3.1-nemotron-ultra-253b-v1'
